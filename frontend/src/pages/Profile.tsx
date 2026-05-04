@@ -1,18 +1,20 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
-import { authService } from '../services/auth.service';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../services/api";
+import { authService } from "../services/auth.service";
+import { User } from "../types";
+import { AxiosError } from "axios";
 
 function Profile() {
   const navigate = useNavigate();
-  const [userInfo, setUserInfo] = useState<any>(null);
-  const [loading, setLoading] = useState<any>(true);
-  const [error, setError] = useState<any>('');
-  const [promoteLoading, setPromoteLoading] = useState<any>(false);
-  const [promoteError, setPromoteError] = useState<any>('');
+  const [userInfo, setUserInfo] = useState<User>();
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+  const [promoteLoading, setPromoteLoading] = useState<boolean>(false);
+  const [promoteError, setPromoteError] = useState<string>("");
   const user = authService.getCurrentUser();
   const token = authService.getToken();
-  const isDev = (import.meta as any).env?.DEV === true;
+  const isDev = import.meta.env.DEV;
 
   useEffect(() => {
     if (user) {
@@ -20,7 +22,7 @@ function Profile() {
     }
   }, []);
 
-  const fetchUserInfo = async (): Promise<any> => {
+  const fetchUserInfo = async (): Promise<void> => {
     try {
       setLoading(true);
       const response = await api.get(`/user/${user.id}`, {
@@ -29,16 +31,19 @@ function Profile() {
         },
       });
       setUserInfo(response.data);
-    } catch (err: any) {
-      setError('Failed to load user information');
-      console.error(err);
+    } catch (err) {
+      setError("Failed to load user information");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteAccount = async (): Promise<any> => {
-    if (!window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+  const handleDeleteAccount = async (): Promise<void> => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete your account? This action cannot be undone.",
+      )
+    ) {
       return;
     }
 
@@ -49,19 +54,18 @@ function Profile() {
         },
       });
       authService.logout();
-      navigate('/login');
-    } catch (err: any) {
-      alert('Failed to delete account');
-      console.error(err);
+      navigate("/login");
+    } catch (err) {
+      alert("Failed to delete account");
     }
   };
 
-  const handlePromoteAdmin = async (): Promise<any> => {
+  const handlePromoteAdmin = async (): Promise<void> => {
     try {
-      setPromoteError('');
+      setPromoteError("");
       setPromoteLoading(true);
       const response = await api.post(
-        '/user/promote-admin',
+        "/user/promote-admin",
         {},
         {
           headers: {
@@ -71,9 +75,8 @@ function Profile() {
       );
       setUserInfo(response.data);
       authService.updateCurrentUser({ admin: response.data.admin });
-    } catch (err: any) {
-      setPromoteError('Failed to promote to admin');
-      console.error(err);
+    } catch (err) {
+      setPromoteError("Failed to promote to admin");
     } finally {
       setPromoteLoading(false);
     }
@@ -91,7 +94,7 @@ function Profile() {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error || 'Failed to load profile'}
+          {error || "Failed to load profile"}
         </div>
       </div>
     );
@@ -147,10 +150,12 @@ function Profile() {
                     disabled={promoteLoading}
                     className="bg-emerald-600 text-white py-2 px-4 rounded-lg hover:bg-emerald-700 disabled:opacity-60"
                   >
-                    {promoteLoading ? 'Promoting...' : 'Promote to Admin (Dev)'}
+                    {promoteLoading ? "Promoting..." : "Promote to Admin (Dev)"}
                   </button>
                   {promoteError ? (
-                    <div className="mt-2 text-sm text-red-600">{promoteError}</div>
+                    <div className="mt-2 text-sm text-red-600">
+                      {promoteError}
+                    </div>
                   ) : null}
                 </div>
               ) : null}
@@ -161,10 +166,10 @@ function Profile() {
                 Member Since
               </label>
               <p className="text-lg text-gray-800">
-                {new Date(userInfo.createdAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
+                {new Date(userInfo.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
                 })}
               </p>
             </div>
@@ -172,7 +177,7 @@ function Profile() {
 
           <div className="flex space-x-4">
             <button
-              onClick={() => navigate('/sessions')}
+              onClick={() => navigate("/sessions")}
               className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700"
             >
               Back to Sessions
