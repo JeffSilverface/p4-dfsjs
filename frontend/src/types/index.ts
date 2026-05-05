@@ -17,7 +17,7 @@ export interface Teacher {
 }
 
 export interface Session {
-  id: number;
+  id: string;
   name: string;
   date: string;
   description: string;

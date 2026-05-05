@@ -31,7 +31,7 @@ function Sessions() {
     }
   };
 
-  const handleDelete = async (sessionId: any): Promise<void> => {
+  const handleDelete = async (sessionId: string): Promise<void> => {
     if (!window.confirm("Are you sure you want to delete this session?")) {
       return;
     }

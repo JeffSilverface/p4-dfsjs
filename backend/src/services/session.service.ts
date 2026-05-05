@@ -1,4 +1,8 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from "@prisma/client";
+
+type SessionWithDetails = Prisma.SessionGetPayload<{
+  include: typeof sessionInclude;
+}>;
 
 const prisma = new PrismaClient();
 
@@ -7,7 +11,7 @@ const sessionInclude = {
   participants: { include: { user: true } },
 };
 
-function formatSession(session: any) {
+function formatSession(session: SessionWithDetails) {
   return {
     id: session.id,
     name: session.name,
@@ -18,7 +22,7 @@ function formatSession(session: any) {
       firstName: session.teacher.firstName,
       lastName: session.teacher.lastName,
     },
-    users: session.participants.map((p: any) => p.user.id),
+    users: session.participants.map((p) => p.user.id),
     createdAt: session.createdAt,
     updatedAt: session.updatedAt,
   };
@@ -27,7 +31,7 @@ function formatSession(session: any) {
 async function assertAdmin(userId: number) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user?.admin) {
-    throw { status: 403, message: 'Admin access required' };
+    throw { status: 403, message: "Admin access required" };
   }
 }
 
@@ -44,18 +48,28 @@ export class SessionService {
     });
 
     if (!session) {
-      throw { status: 404, message: 'Session not found' };
+      throw { status: 404, message: "Session not found" };
     }
 
     return formatSession(session);
   }
 
-  async create(data: { name: string; date: string; description: string; teacherId: number }, requestingUserId: number) {
+  async create(
+    data: {
+      name: string;
+      date: string;
+      description: string;
+      teacherId: number;
+    },
+    requestingUserId: number,
+  ) {
     await assertAdmin(requestingUserId);
 
-    const teacher = await prisma.teacher.findUnique({ where: { id: data.teacherId } });
+    const teacher = await prisma.teacher.findUnique({
+      where: { id: data.teacherId },
+    });
     if (!teacher) {
-      throw { status: 404, message: 'Teacher not found' };
+      throw { status: 404, message: "Teacher not found" };
     }
 
     const session = await prisma.session.create({
@@ -71,22 +85,35 @@ export class SessionService {
     return formatSession(session);
   }
 
-  async update(sessionId: number, data: { name?: string; date?: string; description?: string; teacherId?: number }, requestingUserId: number) {
+  async update(
+    sessionId: number,
+    data: {
+      name?: string;
+      date?: string;
+      description?: string;
+      teacherId?: number;
+    },
+    requestingUserId: number,
+  ) {
     await assertAdmin(requestingUserId);
 
-    const existing = await prisma.session.findUnique({ where: { id: sessionId } });
+    const existing = await prisma.session.findUnique({
+      where: { id: sessionId },
+    });
     if (!existing) {
-      throw { status: 404, message: 'Session not found' };
+      throw { status: 404, message: "Session not found" };
     }
 
-    const updateData: any = {};
+    const updateData: Prisma.SessionUncheckedUpdateInput = {};
     if (data.name) updateData.name = data.name;
     if (data.date) updateData.date = new Date(data.date);
     if (data.description) updateData.description = data.description;
     if (data.teacherId) {
-      const teacher = await prisma.teacher.findUnique({ where: { id: data.teacherId } });
+      const teacher = await prisma.teacher.findUnique({
+        where: { id: data.teacherId },
+      });
       if (!teacher) {
-        throw { status: 404, message: 'Teacher not found' };
+        throw { status: 404, message: "Teacher not found" };
       }
       updateData.teacherId = data.teacherId;
     }
@@ -103,23 +130,27 @@ export class SessionService {
   async delete(sessionId: number, requestingUserId: number) {
     await assertAdmin(requestingUserId);
 
-    const existing = await prisma.session.findUnique({ where: { id: sessionId } });
+    const existing = await prisma.session.findUnique({
+      where: { id: sessionId },
+    });
     if (!existing) {
-      throw { status: 404, message: 'Session not found' };
+      throw { status: 404, message: "Session not found" };
     }
 
     await prisma.session.delete({ where: { id: sessionId } });
   }
 
   async participate(sessionId: number, userId: number) {
-    const session = await prisma.session.findUnique({ where: { id: sessionId } });
+    const session = await prisma.session.findUnique({
+      where: { id: sessionId },
+    });
     if (!session) {
-      throw { status: 404, message: 'Session not found' };
+      throw { status: 404, message: "Session not found" };
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      throw { status: 404, message: 'User not found' };
+      throw { status: 404, message: "User not found" };
     }
 
     const existing = await prisma.sessionParticipation.findUnique({
@@ -127,7 +158,10 @@ export class SessionService {
     });
 
     if (existing) {
-      throw { status: 400, message: 'User already participating in this session' };
+      throw {
+        status: 400,
+        message: "User already participating in this session",
+      };
     }
 
     await prisma.sessionParticipation.create({ data: { sessionId, userId } });
@@ -139,7 +173,7 @@ export class SessionService {
     });
 
     if (!participation) {
-      throw { status: 404, message: 'Participation not found' };
+      throw { status: 404, message: "Participation not found" };
     }
 
     await prisma.sessionParticipation.delete({

@@ -25,7 +25,7 @@ function Profile() {
   const fetchUserInfo = async (): Promise<void> => {
     try {
       setLoading(true);
-      const response = await api.get(`/user/${user.id}`, {
+      const response = await api.get(`/user/${user?.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -48,7 +48,7 @@ function Profile() {
     }
 
     try {
-      await api.delete(`/user/${user.id}`, {
+      await api.delete(`/user/${user?.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
