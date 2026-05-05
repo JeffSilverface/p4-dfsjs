@@ -1,16 +1,16 @@
-import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { generateToken } from '../utils/jwt.util';
+import { HttpError } from '../utils/httpError.util';
+import { AuthRepository } from '../repositories/auth.repository';
 
-const prisma = new PrismaClient();
+const authRepository = new AuthRepository();
 
 export class AuthService {
   async login(email: string, password: string) {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await authRepository.findByEmail(email);
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw { status: 401, message: 'Invalid credentials' };
-    }
+    if (!user || !(await bcrypt.compare(password, user.password)))
+      throw new HttpError(401, 'Invalid credentials');
 
     return {
       id: user.id,
@@ -23,20 +23,14 @@ export class AuthService {
   }
 
   async register(email: string, password: string, firstName: string, lastName: string) {
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (await authRepository.findByEmail(email))
+      throw new HttpError(400, 'Email already exists');
 
-    if (existingUser) {
-      throw { status: 400, message: 'Email already exists' };
-    }
-
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: await bcrypt.hash(password, 10),
-        firstName,
-        lastName,
-        admin: false,
-      },
+    const user = await authRepository.create({
+      email,
+      password: await bcrypt.hash(password, 10),
+      firstName,
+      lastName,
     });
 
     return {
