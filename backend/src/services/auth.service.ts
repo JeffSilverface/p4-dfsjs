@@ -1,7 +1,7 @@
-import * as bcrypt from 'bcrypt';
-import { generateToken } from '../utils/jwt.util';
-import { HttpError } from '../utils/httpError.util';
-import { AuthRepository } from '../repositories/auth.repository';
+import * as bcrypt from "bcrypt";
+import { generateToken } from "../utils/jwt.util";
+import { HttpError } from "../utils/httpError.util";
+import { AuthRepository } from "../repositories/auth.repository";
 
 const authRepository = new AuthRepository();
 
@@ -10,7 +10,7 @@ export class AuthService {
     const user = await authRepository.findByEmail(email);
 
     if (!user || !(await bcrypt.compare(password, user.password)))
-      throw new HttpError(401, 'Invalid credentials');
+      throw new HttpError(401, "Invalid credentials");
 
     return {
       id: user.id,
@@ -22,9 +22,14 @@ export class AuthService {
     };
   }
 
-  async register(email: string, password: string, firstName: string, lastName: string) {
+  async register(
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+  ) {
     if (await authRepository.findByEmail(email))
-      throw new HttpError(400, 'Email already exists');
+      throw new HttpError(400, "Email already exists");
 
     const user = await authRepository.create({
       email,

@@ -1,15 +1,10 @@
-import { PrismaClient, Prisma } from "@prisma/client";
+import {
+  SessionRepository,
+  SessionWithDetails,
+} from "../repositories/session.repository";
+import { CreateSession, UpdateSession } from "../models/session.types";
 
-type SessionWithDetails = Prisma.SessionGetPayload<{
-  include: typeof sessionInclude;
-}>;
-
-const prisma = new PrismaClient();
-
-const sessionInclude = {
-  teacher: true,
-  participants: { include: { user: true } },
-};
+const sessionRepository = new SessionRepository();
 
 function formatSession(session: SessionWithDetails) {
   return {
@@ -29,7 +24,7 @@ function formatSession(session: SessionWithDetails) {
 }
 
 async function assertAdmin(userId: number) {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user = await sessionRepository.findByUserId(userId);
   if (!user?.admin) {
     throw { status: 403, message: "Admin access required" };
   }
@@ -37,15 +32,12 @@ async function assertAdmin(userId: number) {
 
 export class SessionService {
   async getAll() {
-    const sessions = await prisma.session.findMany({ include: sessionInclude });
+    const sessions = await sessionRepository.findAll();
     return sessions.map(formatSession);
   }
 
   async getById(sessionId: number) {
-    const session = await prisma.session.findUnique({
-      where: { id: sessionId },
-      include: sessionInclude,
-    });
+    const session = await sessionRepository.findBySessionId(sessionId);
 
     if (!session) {
       throw { status: 404, message: "Session not found" };
@@ -54,75 +46,49 @@ export class SessionService {
     return formatSession(session);
   }
 
-  async create(
-    data: {
-      name: string;
-      date: string;
-      description: string;
-      teacherId: number;
-    },
-    requestingUserId: number,
-  ) {
+  async create(data: CreateSession, requestingUserId: number) {
     await assertAdmin(requestingUserId);
 
-    const teacher = await prisma.teacher.findUnique({
-      where: { id: data.teacherId },
-    });
+    const teacher = await sessionRepository.findByTeacherId(data.teacherId);
+
     if (!teacher) {
       throw { status: 404, message: "Teacher not found" };
     }
 
-    const session = await prisma.session.create({
-      data: {
-        name: data.name,
-        date: new Date(data.date),
-        description: data.description,
-        teacherId: data.teacherId,
-      },
-      include: { teacher: true, participants: { include: { user: true } } },
-    });
+    const session = await sessionRepository.createSession(data);
 
     return formatSession(session);
   }
 
   async update(
     sessionId: number,
-    data: {
-      name?: string;
-      date?: string;
-      description?: string;
-      teacherId?: number;
-    },
+    data: UpdateSession,
     requestingUserId: number,
   ) {
     await assertAdmin(requestingUserId);
 
-    const existing = await prisma.session.findUnique({
-      where: { id: sessionId },
-    });
+    const existing = await sessionRepository.findBySessionId(sessionId);
     if (!existing) {
       throw { status: 404, message: "Session not found" };
     }
 
-    const updateData: Prisma.SessionUncheckedUpdateInput = {};
+    const updateData: UpdateSession = {};
+
     if (data.name) updateData.name = data.name;
     if (data.date) updateData.date = new Date(data.date);
     if (data.description) updateData.description = data.description;
     if (data.teacherId) {
-      const teacher = await prisma.teacher.findUnique({
-        where: { id: data.teacherId },
-      });
+      const teacher = await sessionRepository.findByTeacherId(data.teacherId);
       if (!teacher) {
         throw { status: 404, message: "Teacher not found" };
       }
       updateData.teacherId = data.teacherId;
     }
 
-    const session = await prisma.session.update({
-      where: { id: sessionId },
-      data: updateData,
-      include: sessionInclude,
-    });
+    const session = await sessionRepository.updateSession(
+      updateData,
+      sessionId,
+    );
 
     return formatSession(session);
   }
@@ -130,32 +96,31 @@ export class SessionService {
   async delete(sessionId: number, requestingUserId: number) {
     await assertAdmin(requestingUserId);
 
-    const existing = await prisma.session.findUnique({
-      where: { id: sessionId },
-    });
+    const existing = await sessionRepository.findBySessionId(sessionId);
+
     if (!existing) {
       throw { status: 404, message: "Session not found" };
     }
 
-    await prisma.session.delete({ where: { id: sessionId } });
+    await sessionRepository.deleteSession(sessionId);
   }
 
   async participate(sessionId: number, userId: number) {
-    const session = await prisma.session.findUnique({
-      where: { id: sessionId },
-    });
+    const session = await sessionRepository.findBySessionId(sessionId);
+
     if (!session) {
       throw { status: 404, message: "Session not found" };
     }
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await sessionRepository.findByUserId(userId);
     if (!user) {
       throw { status: 404, message: "User not found" };
     }
 
-    const existing = await prisma.sessionParticipation.findUnique({
-      where: { sessionId_userId: { sessionId, userId } },
-    });
+    const existing = await sessionRepository.findParticipationBySessionIdUserId(
+      sessionId,
+      userId,
+    );
 
     if (existing) {
       throw {
@@ -164,20 +129,20 @@ export class SessionService {
       };
     }
 
-    await prisma.sessionParticipation.create({ data: { sessionId, userId } });
+    await sessionRepository.createParticipation(sessionId, userId);
   }
 
   async unparticipate(sessionId: number, userId: number) {
-    const participation = await prisma.sessionParticipation.findUnique({
-      where: { sessionId_userId: { sessionId, userId } },
-    });
+    const participation =
+      await sessionRepository.findParticipationBySessionIdUserId(
+        sessionId,
+        userId,
+      );
 
     if (!participation) {
       throw { status: 404, message: "Participation not found" };
     }
 
-    await prisma.sessionParticipation.delete({
-      where: { sessionId_userId: { sessionId, userId } },
-    });
+    await sessionRepository.deleteParticipation(sessionId, userId);
   }
 }
