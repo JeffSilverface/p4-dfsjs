@@ -3,7 +3,11 @@ import {
   SessionWithDetails,
 } from "../repositories/session.repository";
 import { CreateSession, UpdateSession } from "../models/session.types";
+import { TeacherRepository } from "../repositories/teacher.repository";
+import { UserRepository } from "../repositories/user.repository";
 
+const teacherRepository = new TeacherRepository();
+const userRepository = new UserRepository();
 const sessionRepository = new SessionRepository();
 
 function formatSession(session: SessionWithDetails) {
@@ -24,7 +28,7 @@ function formatSession(session: SessionWithDetails) {
 }
 
 async function assertAdmin(userId: number) {
-  const user = await sessionRepository.findByUserId(userId);
+  const user = await userRepository.findById(userId);
   if (!user?.admin) {
     throw { status: 403, message: "Admin access required" };
   }
@@ -37,7 +41,7 @@ export class SessionService {
   }
 
   async getById(sessionId: number) {
-    const session = await sessionRepository.findBySessionId(sessionId);
+    const session = await sessionRepository.findById(sessionId);
 
     if (!session) {
       throw { status: 404, message: "Session not found" };
@@ -49,7 +53,7 @@ export class SessionService {
   async create(data: CreateSession, requestingUserId: number) {
     await assertAdmin(requestingUserId);
 
-    const teacher = await sessionRepository.findByTeacherId(data.teacherId);
+    const teacher = await teacherRepository.findById(data.teacherId);
 
     if (!teacher) {
       throw { status: 404, message: "Teacher not found" };
@@ -67,7 +71,7 @@ export class SessionService {
   ) {
     await assertAdmin(requestingUserId);
 
-    const existing = await sessionRepository.findBySessionId(sessionId);
+    const existing = await sessionRepository.findById(sessionId);
     if (!existing) {
       throw { status: 404, message: "Session not found" };
     }
@@ -78,7 +82,7 @@ export class SessionService {
     if (data.date) updateData.date = new Date(data.date);
     if (data.description) updateData.description = data.description;
     if (data.teacherId) {
-      const teacher = await sessionRepository.findByTeacherId(data.teacherId);
+      const teacher = await teacherRepository.findById(data.teacherId);
       if (!teacher) {
         throw { status: 404, message: "Teacher not found" };
       }
@@ -96,7 +100,7 @@ export class SessionService {
   async delete(sessionId: number, requestingUserId: number) {
     await assertAdmin(requestingUserId);
 
-    const existing = await sessionRepository.findBySessionId(sessionId);
+    const existing = await sessionRepository.findById(sessionId);
 
     if (!existing) {
       throw { status: 404, message: "Session not found" };
@@ -106,13 +110,13 @@ export class SessionService {
   }
 
   async participate(sessionId: number, userId: number) {
-    const session = await sessionRepository.findBySessionId(sessionId);
+    const session = await sessionRepository.findById(sessionId);
 
     if (!session) {
       throw { status: 404, message: "Session not found" };
     }
 
-    const user = await sessionRepository.findByUserId(userId);
+    const user = await userRepository.findById(userId);
     if (!user) {
       throw { status: 404, message: "User not found" };
     }

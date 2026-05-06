@@ -13,24 +13,14 @@ export type SessionWithDetails = Prisma.SessionGetPayload<{
 }>;
 
 export class SessionRepository {
-  async findByUserId(userId: number) {
-    return prisma.user.findUnique({ where: { id: userId } });
-  }
-
   async findAll() {
     return prisma.session.findMany({ include: sessionInclude });
   }
 
-  async findBySessionId(sessionId: number) {
+  async findById(sessionId: number) {
     return prisma.session.findUnique({
       where: { id: sessionId },
       include: sessionInclude,
-    });
-  }
-
-  async findByTeacherId(teacherId: number) {
-    return prisma.teacher.findUnique({
-      where: { id: teacherId },
     });
   }
 

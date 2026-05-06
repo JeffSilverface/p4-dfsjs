@@ -1,19 +1,9 @@
 import { Response } from "express";
 import { AuthRequest } from "../middleware/auth.middleware";
 import { TeacherService } from "../services/teacher.service";
+import { asyncHandler } from "../utils/asyncHandler.util";
 
 const teacherService = new TeacherService();
-
-function isServiceError(
-  err: unknown,
-): err is { status: number; message: string } {
-  return (
-    typeof err === "object" &&
-    err !== null &&
-    "status" in err &&
-    "message" in err
-  );
-}
 
 function parseId(raw: string | string[]): number | null {
   const id = parseInt(Array.isArray(raw) ? raw[0] : raw);
@@ -21,27 +11,15 @@ function parseId(raw: string | string[]): number | null {
 }
 
 export class TeacherController {
-  async getAll(req: AuthRequest, res: Response) {
-    try {
-      return res.status(200).json(await teacherService.getAll());
-    } catch (err) {
-      console.error("Get teachers error:", err);
-      return res.status(500).json({ message: "Internal server error" });
-    }
-  }
+  getAll = asyncHandler(async (_req: AuthRequest, res: Response) => {
+    return res.status(200).json(await teacherService.getAll());
+  });
 
-  async getById(req: AuthRequest, res: Response) {
+  getById = asyncHandler(async (req: AuthRequest, res: Response) => {
     const teacherId = parseId(req.params.id);
     if (!teacherId)
       return res.status(400).json({ message: "Invalid teacher ID" });
 
-    try {
-      return res.status(200).json(await teacherService.getById(teacherId));
-    } catch (err) {
-      if (isServiceError(err))
-        return res.status(err.status).json({ message: err.message });
-      console.error("Get teacher error:", err);
-      return res.status(500).json({ message: "Internal server error" });
-    }
-  }
+    return res.status(200).json(await teacherService.getById(teacherId));
+  });
 }

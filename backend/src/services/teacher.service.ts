@@ -1,10 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import { TeacherRepository } from "../repositories/teacher.repository";
 
-const prisma = new PrismaClient();
+const teacherRepository = new TeacherRepository();
 
 export class TeacherService {
   async getAll() {
-    const teachers = await prisma.teacher.findMany({ orderBy: { createdAt: 'desc' } });
+    const teachers = await teacherRepository.findAll();
 
     return teachers.map((teacher) => ({
       id: teacher.id,
@@ -16,10 +16,10 @@ export class TeacherService {
   }
 
   async getById(teacherId: number) {
-    const teacher = await prisma.teacher.findUnique({ where: { id: teacherId } });
+    const teacher = await teacherRepository.findById(teacherId);
 
     if (!teacher) {
-      throw { status: 404, message: 'Teacher not found' };
+      throw { status: 404, message: "Teacher not found" };
     }
 
     return {
