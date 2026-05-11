@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import request from "supertest";
 import app from "../../app";
 import { generateToken } from "../../utils/jwt.util";
+import { testSessionResponse } from "../fixtures/session.fixtures";
 
 const token = generateToken(1);
 
@@ -20,25 +21,9 @@ vi.mock("../../repositories/session.repository", () => ({
   },
 }));
 
-const testResponse = {
-  id: 1,
-  name: "Yoga du matin",
-  date: new Date("2026-06-01T09:00:00.000Z"),
-  description: "Session de yoga pour débutants",
-  teacherId: 1,
-  teacher: {
-    id: 1,
-    firstName: "Marie",
-    lastName: "Dupont",
-  },
-  participants: [],
-  createdAt: new Date("2026-01-01T00:00:00.000Z"),
-  updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-};
-
 describe("Get /api/session", () => {
   it("returns 200 with an array of sessions", async () => {
-    mockFindAll.mockResolvedValue([testResponse, testResponse]);
+    mockFindAll.mockResolvedValue([testSessionResponse, testSessionResponse]);
 
     const res = await request(app)
       .get("/api/session")
@@ -54,7 +39,7 @@ describe("Get /api/session", () => {
   });
 
   it("returns 200 with a session", async () => {
-    mockFindById.mockResolvedValue(testResponse);
+    mockFindById.mockResolvedValue(testSessionResponse);
 
     const res = await request(app)
       .get("/api/session/1")

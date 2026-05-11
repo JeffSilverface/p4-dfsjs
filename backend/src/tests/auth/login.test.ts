@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import request from "supertest";
 import app from "../../app";
+import { testLoginRequest, testUserResponse } from "../fixtures/user.fixtures";
 
 const { mockFindByEmail } = vi.hoisted(() => ({
   mockFindByEmail: vi.fn(),
@@ -19,18 +20,11 @@ vi.mock("bcrypt", () => ({
 
 describe("POST /api/auth/login", () => {
   it("returns 200 with token if credentials are ok", async () => {
-    mockFindByEmail.mockResolvedValue({
-      id: 1,
-      email: "test@test.com",
-      password: "hashedpassword",
-      firstName: "Jean",
-      lastName: "Dupont",
-      admin: false,
-    });
+    mockFindByEmail.mockResolvedValue(testUserResponse);
 
     const res = await request(app)
       .post("/api/auth/login")
-      .send({ email: "test@test.com", password: "password123" });
+      .send(testLoginRequest);
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("token");
@@ -39,7 +33,7 @@ describe("POST /api/auth/login", () => {
   it("returns 400 if email is missing", async () => {
     const res = await request(app)
       .post("/api/auth/login")
-      .send({ password: "password123" });
+      .send({ password: testLoginRequest.password });
 
     expect(res.status).toBe(400);
   });
@@ -47,7 +41,7 @@ describe("POST /api/auth/login", () => {
   it("returs 400 if password is missing", async () => {
     const res = await request(app)
       .post("/api/auth/login")
-      .send({ email: "test@test.com" });
+      .send({ email: testLoginRequest.email });
 
     expect(res.status).toBe(400);
   });
@@ -57,7 +51,7 @@ describe("POST /api/auth/login", () => {
 
     const res = await request(app)
       .post("/api/auth/login")
-      .send({ email: "test@test.com", password: "wrongpassword" });
+      .send(testLoginRequest);
 
     expect(res.status).toBe(401);
   });
