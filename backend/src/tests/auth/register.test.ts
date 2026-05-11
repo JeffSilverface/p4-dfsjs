@@ -2,11 +2,8 @@ import { describe, it, expect, vi } from "vitest";
 import request from "supertest";
 import app from "../../app";
 
-const { mockFindByEmail } = vi.hoisted(() => ({
+const { mockFindByEmail, mockCreate } = vi.hoisted(() => ({
   mockFindByEmail: vi.fn(),
-}));
-
-const { mockCreate } = vi.hoisted(() => ({
   mockCreate: vi.fn(),
 }));
 
