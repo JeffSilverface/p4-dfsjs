@@ -50,6 +50,20 @@ describe("POST /api/session/:id/participate/:userId", () => {
     expect(res.status).toBe(200);
   });
 
+  it("POST /api/session/abc/participate/1 returns 400 for invalid session ID", async () => {
+    const response = await request(app)
+      .post("/api/session/abc/participate/1")
+      .set("Authorization", `Bearer ${token}`);
+    expect(response.status).toBe(400);
+  });
+
+  it("DELETE /api/session/abc/participate/1 returns 400 for invalid session ID", async () => {
+    const response = await request(app)
+      .delete("/api/session/abc/participate/1")
+      .set("Authorization", `Bearer ${token }`);
+    expect(response.status).toBe(400);
+  });
+
   it("returns 401 without token", async () => {
     const res = await request(app).post("/api/session/1/participate/1");
 

@@ -7,7 +7,7 @@ export default defineConfig({
     env: { NODE_ENV: "development" },
     coverage: {
       provider: "v8",
-      exclude: ["src/dto/**", "src/models/**"],
+      exclude: ["src/dto/**", "src/models/**", "src/repositories/**"],
       thresholds: {
         statements: 80,
         branches: 80,

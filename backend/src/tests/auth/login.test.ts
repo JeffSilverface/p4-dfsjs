@@ -30,6 +30,22 @@ describe("POST /api/auth/login", () => {
     expect(res.body).toHaveProperty("token");
   });
 
+  it("returns 401 when token format is invalid", async () => {
+    const response = await request(app)
+      .get("/api/session")
+      .set("Authorization", "Bearer");
+    expect(response.status).toBe(401);
+    expect(response.body.message).toBe("Invalid token format");
+  });
+
+  it("returns 401 when token is invalid", async () => {
+    const response = await request(app)
+      .get("/api/session")
+      .set("Authorization", "Bearer invalidtoken");
+    expect(response.status).toBe(401);
+    expect(response.body.message).toBe("Invalid or expired token");
+  });
+
   it("returns 400 if email is missing", async () => {
     const res = await request(app)
       .post("/api/auth/login")
