@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { vi } from "vitest";
 import Login from "../pages/Login";
 import { authService } from "../services/auth.service";
+import { testAuthResponse } from "./fixture/user.fixture";
 
 const mockNavigate = vi.fn();
 
@@ -22,7 +23,7 @@ describe("Login", () => {
     render(
       <MemoryRouter>
         <Login />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
@@ -31,19 +32,12 @@ describe("Login", () => {
   });
 
   it("redirects to sessions after successful login", async () => {
-    vi.mocked(authService.login).mockResolvedValue({
-      id: 1,
-      email: "user@test.com",
-      firstName: "Ivan",
-      lastName: "Desfrites",
-      admin: false,
-      token: "fake-token",
-    });
+    vi.mocked(authService.login).mockResolvedValue(testAuthResponse);
 
     render(
       <MemoryRouter>
         <Login />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     fireEvent.change(screen.getByLabelText("Email"), {
@@ -67,7 +61,7 @@ describe("Login", () => {
     render(
       <MemoryRouter>
         <Login />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     fireEvent.change(screen.getByLabelText("Email"), {
@@ -81,5 +75,17 @@ describe("Login", () => {
     await waitFor(() => {
       expect(screen.getByText("Invalid credentials")).toBeInTheDocument();
     });
+  });
+
+  it("displays link to register page", () => {
+    render(
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>,
+    );
+
+    const link = screen.getByRole("link", { name: "Register here" });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute("href", "/register");
   });
 });
