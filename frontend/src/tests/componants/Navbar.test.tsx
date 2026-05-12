@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { vi } from "vitest";
-import Navbar from "../components/Navbar";
-import { authService } from "../services/auth.service";
-import { testUser } from "./fixture/user.fixture";
+import { authService } from "../../services/auth.service";
+import Navbar from "../../components/Navbar";
+import { testUserResponse } from "../fixture/user.fixture";
 
-vi.mock("../services/auth.service", () => ({
+vi.mock("../../services/auth.service", () => ({
   authService: {
     getCurrentUser: vi.fn(),
     isAuthenticated: vi.fn(),
@@ -31,7 +31,7 @@ describe("Navbar", () => {
 
   it("Displays Logout when connected", () => {
     vi.mocked(authService.isAuthenticated).mockReturnValue(true);
-    vi.mocked(authService.getCurrentUser).mockReturnValue(testUser);
+    vi.mocked(authService.getCurrentUser).mockReturnValue(testUserResponse);
 
     render(
       <MemoryRouter>
