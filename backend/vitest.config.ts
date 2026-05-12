@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
+    env: { NODE_ENV: "development" },
     coverage: {
       provider: "v8",
       exclude: ["src/dto/**", "src/models/**"],

@@ -6,60 +6,61 @@ import { testSessionResponse } from "../fixtures/session.fixtures";
 
 const token = generateToken(1);
 
-const { mockFindById, mockDeleteSession, mockFindByIdUser } = vi.hoisted(() => ({
-  mockFindById: vi.fn(),
-  mockDeleteSession: vi.fn(),
-  mockFindByIdUser: vi.fn(),
-}));
+const { mockFindAll, mockFindById, mockFindParticipationBySessionIdUserId } =
+  vi.hoisted(() => ({
+    mockFindAll: vi.fn(),
+    mockFindById: vi.fn(),
+    mockFindParticipationBySessionIdUserId: vi.fn(),
+  }));
 
 vi.mock("../../repositories/session.repository", () => ({
   SessionRepository: class {
+    findAll = mockFindAll;
     findById = mockFindById;
-    deleteSession = mockDeleteSession;
+    findParticipationBySessionIdUserId = mockFindParticipationBySessionIdUserId;
   },
 }));
 
-vi.mock("../../repositories/user.repository", () => ({
-  UserRepository: class {
-    findById = mockFindByIdUser;
-  },
-}));
-
-describe("DELETE /api/session/:id", () => {
-  it("returns 204 if session deleted", async () => {
-    mockFindByIdUser.mockResolvedValue({ id: 1, admin: true });
-    mockFindById.mockResolvedValue(testSessionResponse);
-    mockDeleteSession.mockResolvedValue(undefined);
+describe("GET /api/session", () => {
+  it("returns 200 with array of sessions", async () => {
+    mockFindAll.mockResolvedValue([testSessionResponse, testSessionResponse]);
 
     const res = await request(app)
-      .delete("/api/session/1")
+      .get("/api/session")
       .set("Authorization", `Bearer ${token}`);
 
-    expect(res.status).toBe(204);
+    expect(res.status).toBe(200);
   });
 
   it("returns 401 without token", async () => {
-    const res = await request(app).delete("/api/session/1");
+    const res = await request(app).get("/api/session");
+
+    expect(res.status).toBe(401);
+  });
+});
+
+describe("GET /api/session/:id", () => {
+  it("returns 200 with session", async () => {
+    mockFindById.mockResolvedValue(testSessionResponse);
+
+    const res = await request(app)
+      .get("/api/session/1")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+  });
+
+  it("returns 401 without token", async () => {
+    const res = await request(app).get("/api/session/1");
 
     expect(res.status).toBe(401);
   });
 
-  it("returns 403 if user is not admin", async () => {
-    mockFindByIdUser.mockResolvedValue({ id: 1, admin: false });
-
-    const res = await request(app)
-      .delete("/api/session/1")
-      .set("Authorization", `Bearer ${token}`);
-
-    expect(res.status).toBe(403);
-  });
-
   it("returns 404 if session does not exist", async () => {
-    mockFindByIdUser.mockResolvedValue({ id: 1, admin: true });
     mockFindById.mockResolvedValue(null);
 
     const res = await request(app)
-      .delete("/api/session/1")
+      .get("/api/session/1")
       .set("Authorization", `Bearer ${token}`);
 
     expect(res.status).toBe(404);
@@ -67,7 +68,7 @@ describe("DELETE /api/session/:id", () => {
 
   it("returns 400 with invalid id", async () => {
     const res = await request(app)
-      .delete("/api/session/wrongId")
+      .get("/api/session/wrongId")
       .set("Authorization", `Bearer ${token}`);
 
     expect(res.status).toBe(400);

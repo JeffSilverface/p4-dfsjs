@@ -17,6 +17,8 @@ export const testUserResponse = {
   lastName: "Peuplu",
   admin: false,
   password: "hashedpassword",
+  createdAt: new Date("2026-01-01T00:00:00.000Z"),
+  updatedAt: new Date("2026-01-01T00:00:00.000Z"),
 };
 
 export const testAdminResponse = {
@@ -26,4 +28,6 @@ export const testAdminResponse = {
   lastName: "Peuplu",
   admin: true,
   password: "hashedpassword",
+  createdAt: new Date("2026-01-01T00:00:00.000Z"),
+  updatedAt: new Date("2026-01-01T00:00:00.000Z"),
 };
