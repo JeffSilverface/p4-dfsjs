@@ -12,7 +12,7 @@ vi.mock("react-router-dom", async (importOriginal) => {
   return { ...actual, useNavigate: () => mockNavigate };
 });
 
-vi.mock("../services/auth.service", () => ({
+vi.mock("../../services/auth.service", () => ({
   authService: {
     login: vi.fn(),
   },

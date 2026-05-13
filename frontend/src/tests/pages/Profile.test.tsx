@@ -3,6 +3,8 @@ import { MemoryRouter } from "react-router-dom";
 import { vi } from "vitest";
 import Profile from "../../pages/Profile";
 import { testUserResponse } from "../fixture/user.fixture";
+import { authService } from "../../services/auth.service";
+import api from "../../services/api";
 
 const mockNavigate = vi.fn();
 
@@ -28,9 +30,6 @@ vi.mock("../../services/api", () => ({
   },
 }));
 
-import { authService } from "../../services/auth.service";
-import api from "../../services/api";
-
 describe("Profile", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -43,7 +42,7 @@ describe("Profile", () => {
     render(
       <MemoryRouter>
         <Profile />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => {
@@ -59,11 +58,13 @@ describe("Profile", () => {
     render(
       <MemoryRouter>
         <Profile />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => {
-      expect(screen.getByText("Failed to load user information")).toBeInTheDocument();
+      expect(
+        screen.getByText("Failed to load user information"),
+      ).toBeInTheDocument();
     });
   });
 
@@ -73,7 +74,7 @@ describe("Profile", () => {
     render(
       <MemoryRouter>
         <Profile />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => screen.getByText("Delete Account"));
@@ -91,7 +92,7 @@ describe("Profile", () => {
     render(
       <MemoryRouter>
         <Profile />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     await waitFor(() => screen.getByText("Delete Account"));
