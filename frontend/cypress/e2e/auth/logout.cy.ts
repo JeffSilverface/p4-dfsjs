@@ -1,6 +1,6 @@
 describe("Log out test", () => {
   it("Logs out the user", () => {
-    cy.login("user@test.com", "test!1234");
+    cy.login(Cypress.env("USER_EMAIL"), Cypress.env("USER_PASSWORD"));
     cy.visit("/sessions");
 
     cy.get("#logout").click();
