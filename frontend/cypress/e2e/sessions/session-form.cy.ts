@@ -12,20 +12,20 @@ describe("Session Form", () => {
 
     it("can create a session", () => {
       cy.visit("/sessions/create");
-      cy.get("h1").should("contain", "Create New Session");
+      cy.get("[data-cy=form-title]").should("contain", "Create New Session");
       cy.get("input[name=name]").type("Test Cypress Session");
       cy.get("input[name=date]").type("2027-01-15");
       cy.get("select[name=teacherId]").select(1);
       cy.get("textarea[name=description]").type("Session created by Cypress test");
-      cy.get("button[type=submit]").click();
+      cy.get("[data-cy=submit-button]").click();
       cy.url().should("eq", Cypress.config("baseUrl") + "/sessions");
     });
 
     it("can edit a session", () => {
       cy.visit("/sessions/edit/2");
-      cy.get("h1").should("contain", "Edit Session");
+      cy.get("[data-cy=form-title]").should("contain", "Edit Session");
       cy.get("input[name=name]").clear().type("Yoga Hatha Updated");
-      cy.get("button[type=submit]").click();
+      cy.get("[data-cy=submit-button]").click();
       cy.url().should("eq", Cypress.config("baseUrl") + "/sessions");
     });
 
@@ -35,7 +35,7 @@ describe("Session Form", () => {
       cy.get("input[name=date]").type("2027-02-01");
       cy.get("select[name=teacherId]").select(1);
       cy.get("textarea[name=description]").type("This session will be deleted");
-      cy.get("button[type=submit]").click();
+      cy.get("[data-cy=submit-button]").click();
       cy.url().should("eq", Cypress.config("baseUrl") + "/sessions");
 
       cy.contains("Session To Delete")
@@ -45,7 +45,7 @@ describe("Session Form", () => {
       cy.url().should("match", /\/sessions\/\d+$/);
 
       cy.on("window:confirm", () => true);
-      cy.contains("button", "Delete").click();
+      cy.get("[data-cy=delete-button]").click();
       cy.url().should("eq", Cypress.config("baseUrl") + "/sessions");
     });
   });

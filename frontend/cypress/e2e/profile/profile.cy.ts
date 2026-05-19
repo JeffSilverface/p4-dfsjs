@@ -11,7 +11,7 @@ describe("Profile", () => {
     });
 
     it("displays user information", () => {
-      cy.get("h1").should("contain", "My Profile");
+      cy.get("[data-cy=profile-title]").should("contain", "My Profile");
       cy.contains("First Name").should("be.visible");
       cy.contains("Last Name").should("be.visible");
       cy.contains("Email").should("be.visible");
@@ -19,7 +19,7 @@ describe("Profile", () => {
     });
 
     it("displays User account type", () => {
-      cy.contains("User").should("be.visible");
+      cy.get("[data-cy=account-type]").should("contain", "User");
     });
   });
 
@@ -30,11 +30,11 @@ describe("Profile", () => {
     });
 
     it("displays Administrator account type", () => {
-      cy.contains("Administrator").should("be.visible");
+      cy.get("[data-cy=account-type]").should("contain", "Administrator");
     });
 
     it("does not show Promote to Admin button", () => {
-      cy.contains("Promote to Admin").should("not.exist");
+      cy.get("[data-cy=promote-button]").should("not.exist");
     });
   });
 
@@ -46,12 +46,12 @@ describe("Profile", () => {
     cy.get("#lastName").type("Me");
     cy.get("#email").type(email);
     cy.get("#password").type("test!1234");
-    cy.get("button[type=submit]").click();
+    cy.get("[data-cy=submit-button]").click();
     cy.url().should("include", "/sessions");
 
     cy.visit("/profile");
     cy.on("window:confirm", () => true);
-    cy.contains("button", "Delete Account").click();
+    cy.get("[data-cy=delete-account-button]").click();
     cy.url().should("include", "/login");
   });
 });

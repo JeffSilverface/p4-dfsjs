@@ -11,34 +11,34 @@ describe("Session Detail", () => {
     });
 
     it("displays session detail", () => {
-      cy.get("h1").should("be.visible");
+      cy.get("[data-cy=session-name]").should("be.visible");
       cy.contains("Teacher").should("be.visible");
       cy.contains("Participants").should("be.visible");
     });
 
     it("does not see Edit or Delete buttons", () => {
-      cy.contains("button", "Edit").should("not.exist");
-      cy.contains("button", "Delete").should("not.exist");
+      cy.get("[data-cy=edit-button]").should("not.exist");
+      cy.get("[data-cy=delete-button]").should("not.exist");
     });
 
     it("can join a session", () => {
       cy.get("body").then(($body) => {
-        if ($body.find("button:contains('Leave Session')").length) {
-          cy.contains("button", "Leave Session").click();
+        if ($body.find("[data-cy=leave-button]").length) {
+          cy.get("[data-cy=leave-button]").click();
         }
       });
-      cy.contains("button", "Join Session").click();
-      cy.contains("button", "Leave Session").should("be.visible");
+      cy.get("[data-cy=join-button]").click();
+      cy.get("[data-cy=leave-button]").should("be.visible");
     });
 
     it("can leave a session", () => {
       cy.get("body").then(($body) => {
-        if ($body.find("button:contains('Join Session')").length) {
-          cy.contains("button", "Join Session").click();
+        if ($body.find("[data-cy=join-button]").length) {
+          cy.get("[data-cy=join-button]").click();
         }
       });
-      cy.contains("button", "Leave Session").click();
-      cy.contains("button", "Join Session").should("be.visible");
+      cy.get("[data-cy=leave-button]").click();
+      cy.get("[data-cy=join-button]").should("be.visible");
     });
   });
 
@@ -49,19 +49,19 @@ describe("Session Detail", () => {
     });
 
     it("displays session detail", () => {
-      cy.get("h1").should("be.visible");
+      cy.get("[data-cy=session-name]").should("be.visible");
       cy.contains("Teacher").should("be.visible");
       cy.contains("Participants").should("be.visible");
     });
 
     it("sees Edit and Delete buttons", () => {
-      cy.contains("button", "Edit").should("be.visible");
-      cy.contains("button", "Delete").should("be.visible");
+      cy.get("[data-cy=edit-button]").should("be.visible");
+      cy.get("[data-cy=delete-button]").should("be.visible");
     });
 
     it("does not see Join or Leave buttons", () => {
-      cy.contains("button", "Join Session").should("not.exist");
-      cy.contains("button", "Leave Session").should("not.exist");
+      cy.get("[data-cy=join-button]").should("not.exist");
+      cy.get("[data-cy=leave-button]").should("not.exist");
     });
   });
 });

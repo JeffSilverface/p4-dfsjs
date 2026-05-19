@@ -70,7 +70,7 @@ function Sessions() {
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Yoga Sessions</h1>
+          <h1 data-cy="sessions-title" className="text-3xl font-bold text-gray-800">Yoga Sessions</h1>
           {user && user.admin && (
             <Link
               to="/sessions/create"
@@ -119,6 +119,7 @@ function Sessions() {
 
                   {user && user.admin && (
                     <button
+                      data-cy="delete-session-button"
                       onClick={() => handleDelete(session.id)}
                       className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
                     >

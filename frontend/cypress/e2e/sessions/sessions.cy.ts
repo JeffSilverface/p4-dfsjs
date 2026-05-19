@@ -7,12 +7,12 @@ describe("Sessions", () => {
   it("displays sessions list when authenticated", () => {
     cy.login(Cypress.env("USER_EMAIL"), Cypress.env("USER_PASSWORD"));
     cy.visit("/sessions");
-    cy.get("h1").should("contain", "Yoga Sessions");
+    cy.get("[data-cy=sessions-title]").should("contain", "Yoga Sessions");
   });
 
   it("displays delete button when authenticated as admin", () => {
     cy.login(Cypress.env("ADMIN_EMAIL"), Cypress.env("ADMIN_PASSWORD"));
     cy.visit("/sessions");
-    cy.contains("button", "Delete").should("be.visible");
+    cy.get("[data-cy=delete-session-button]").first().should("be.visible");
   });
 });

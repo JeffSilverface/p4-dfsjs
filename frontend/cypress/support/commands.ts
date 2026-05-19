@@ -13,7 +13,7 @@ Cypress.Commands.add("login", (email: string, password: string) => {
     cy.visit("/login");
     cy.get("#email").type(email);
     cy.get("#password").type(password);
-    cy.get("button[type=submit]").click();
+    cy.get("[data-cy=submit-button]").click();
     cy.url().should("include", "/sessions");
   });
 });

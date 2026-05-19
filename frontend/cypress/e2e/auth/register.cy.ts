@@ -5,7 +5,7 @@ describe("Register", () => {
     cy.get("#lastName").type("User");
     cy.get("#email").type(`test_${Date.now()}@test.com`);
     cy.get("#password").type("test!1234");
-    cy.get("button[type=submit]").click();
+    cy.get("[data-cy=submit-button]").click();
     cy.url().should("include", "/sessions");
   });
 
@@ -15,7 +15,7 @@ describe("Register", () => {
     cy.get("#lastName").type("User");
     cy.get("#email").type(Cypress.env("USER_EMAIL"));
     cy.get("#password").type(Cypress.env("USER_PASSWORD"));
-    cy.get("button[type=submit]").click();
-    cy.contains("Registration failed").should("be.visible");
+    cy.get("[data-cy=submit-button]").click();
+    cy.get("[data-cy=error-message]").should("be.visible");
   });
 });

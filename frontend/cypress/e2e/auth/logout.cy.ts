@@ -3,7 +3,7 @@ describe("Log out test", () => {
     cy.login(Cypress.env("USER_EMAIL"), Cypress.env("USER_PASSWORD"));
     cy.visit("/sessions");
 
-    cy.get("#logout").click();
+    cy.get("[data-cy=logout-button]").click();
     cy.url().should("include", "/login");
   });
 });
