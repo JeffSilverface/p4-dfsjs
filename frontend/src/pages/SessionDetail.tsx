@@ -104,7 +104,7 @@ function SessionDetail() {
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="bg-white rounded-lg shadow-md p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6">
+          <h1 data-cy="session-name" className="text-3xl font-bold text-gray-800 mb-6">
             {session.name}
           </h1>
 
@@ -145,12 +145,14 @@ function SessionDetail() {
             {user?.admin ? (
               <>
                 <button
+                  data-cy="edit-button"
                   onClick={() => navigate(`/sessions/edit/${id}`)}
                   className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700"
                 >
                   Edit
                 </button>
                 <button
+                  data-cy="delete-button"
                   onClick={handleDelete}
                   className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
                 >
@@ -161,6 +163,7 @@ function SessionDetail() {
               <>
                 {isParticipating ? (
                   <button
+                    data-cy="leave-button"
                     onClick={handleUnparticipate}
                     className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
                   >
@@ -168,6 +171,7 @@ function SessionDetail() {
                   </button>
                 ) : (
                   <button
+                    data-cy="join-button"
                     onClick={handleParticipate}
                     className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
                   >

@@ -34,6 +34,7 @@ function Navbar() {
                   Profile
                 </Link>
                 <button
+                  data-cy="logout-button"
                   onClick={handleLogout}
                   className="bg-indigo-700 hover:bg-indigo-800 px-4 py-2 rounded"
                 >

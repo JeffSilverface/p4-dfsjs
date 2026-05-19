@@ -113,7 +113,7 @@ function SessionForm() {
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="container mx-auto px-4 max-w-2xl">
         <div className="bg-white rounded-lg shadow-md p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8">
+          <h1 data-cy="form-title" className="text-3xl font-bold text-gray-800 mb-8">
             {isEditMode ? "Edit Session" : "Create New Session"}
           </h1>
 
@@ -188,6 +188,7 @@ function SessionForm() {
 
             <div className="flex space-x-4">
               <button
+                data-cy="submit-button"
                 type="submit"
                 disabled={loading}
                 className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400"

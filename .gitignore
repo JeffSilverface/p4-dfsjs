@@ -42,3 +42,8 @@ logs/
 
 # Prisma
 backend/prisma/migrations/
+
+# Cypress
+1-getting-started
+2-advanced-examples
+cypress.env.json
